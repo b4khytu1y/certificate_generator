@@ -4,7 +4,7 @@ from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
 import time
 
-TOKEN = "8025483084:AAH_CgKKebA0UUi_mKEKzk82YenNSQ2Li4M"
+
 bot = telebot.TeleBot(TOKEN)
 
 @bot.message_handler(commands=['start'])
