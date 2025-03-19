@@ -39,41 +39,55 @@ def generate_certificate(message, name, course, hours):
         print(f"Ошибка генерации сертификата: {e}")
 
 def create_certificate_image(name, course, hours, date_range):
-    """Создает сертификат с нужными данными"""
+    """Создает красивый сертификат с рамкой и фоном"""
     
     width, height = 1123, 794  # A4 (альбомный)
     image = Image.new("RGB", (width, height), "white")
     draw = ImageDraw.Draw(image)
 
+    # Фон с текстурой бумаги
+    bg_texture = Image.open("paper_texture.jpg").resize((width, height))
+    image.paste(bg_texture, (0, 0))
+
     font_path = "arial.ttf"  # Укажи путь к своему шрифту
     try:
-        font_title = ImageFont.truetype(font_path, 60)
+        font_title = ImageFont.truetype(font_path, 70)
         font_text = ImageFont.truetype(font_path, 40)
         font_small = ImageFont.truetype(font_path, 30)
+        font_bold = ImageFont.truetype(font_path, 50)
     except IOError:
         raise Exception("Не найден файл шрифта. Укажите правильный путь.")
 
-    # Рисуем заголовок
-    draw.text((width//2 - 200, 50), "СЕРТИФИКАТ", font=font_title, fill="black")
+    # Декоративные линии
+    draw.line((50, 100, width - 50, 100), fill="gold", width=5)
+    draw.line((50, height - 100, width - 50, height - 100), fill="gold", width=5)
+
+    # Заголовок
+    draw.text((width//2 - 200, 120), "СЕРТИФИКАТ", font=font_title, fill="black")
 
     # Основной текст
-    draw.text((100, 200), f"Настоящий сертификат подтверждает, что", font=font_text, fill="black")
-    draw.text((100, 250), f"{name}", font=font_text, fill="blue")
-    draw.text((100, 300), f"успешно прошел(а) курс:", font=font_text, fill="black")
-    draw.text((100, 350), f"«{course}»", font=font_text, fill="blue")
-    draw.text((100, 400), f"в объеме {hours} академических часов", font=font_text, fill="black")
-    draw.text((100, 450), f"в период {date_range}", font=font_text, fill="black")
+    draw.text((100, 220), f"Настоящий сертификат подтверждает, что", font=font_text, fill="black")
+    draw.text((100, 280), f"{name}", font=font_bold, fill="blue")
+    draw.text((100, 340), f"успешно прошел(а) курс:", font=font_text, fill="black")
+    draw.text((100, 400), f"«{course}»", font=font_bold, fill="red")
+    draw.text((100, 460), f"в объеме {hours} академических часов", font=font_text, fill="black")
+    draw.text((100, 520), f"в период {date_range}", font=font_text, fill="black")
 
     # Регистрационный номер
     reg_number = f"№ ПК / JA / {random.randint(10000, 99999)}"
-    draw.text((100, 600), f"Дата выдачи: {date_range.split()[-1]}", font=font_small, fill="red")
-    draw.text((600, 600), f"Регистрационный номер: {reg_number}", font=font_small, fill="red")
+    draw.text((100, 680), f"Дата выдачи: {date_range.split()[-1]}", font=font_small, fill="red")
+    draw.text((600, 680), f"Регистрационный номер: {reg_number}", font=font_small, fill="red")
 
     # QR-код
-    qr_data = "https://www.yourverificationlink.com"  # Сюда можно добавить проверку подлинности
+    qr_data = "https://www.yourverificationlink.com"
     qr = qrcode.make(qr_data)
     qr = qr.resize((150, 150))
-    image.paste(qr, (width - 200, height - 200))
+
+    # Создаем золотую рамку для QR
+    qr_x, qr_y = width - 220, height - 200
+    border_size = 10
+    draw.rectangle([qr_x - border_size, qr_y - border_size, qr_x + 150 + border_size, qr_y + 150 + border_size], outline="gold", width=5)
+    image.paste(qr, (qr_x, qr_y))
 
     # Сохраняем в буфер
     buffer = BytesIO()
